@@ -4,23 +4,41 @@ import axios from 'axios'
 import './App.css'
 import { useEffect } from 'react'
 
+
+
 function App() {
 
-  const URL = 'https://api.thecatapi.com'
   const[count, setCount] = useState(0)
   const[cat, setCat] = useState(null)
   const[isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // console.log('effect')
+    let isCancelled = false;
+
     const fechData = async () => {
-      setIsLoading(true);
-      const response = await axios.get(URL + '/v1/images/search')
-      const [result] = response.data;
-      setCat(result)
-      setIsLoading(false);
-    }
+      try {
+        setIsLoading(true);
+        const response = await axios.get('https://api.thecatapi.com/v1/images/search')
+        const [result] = response.data;
+        if(!isCancelled){
+          setCat(result)
+        }
+      } catch (error) {
+        if(!isCancelled){
+          console.log('Error fetching data: ', error)
+        }
+      }finally{
+        if(!isCancelled){
+          setIsLoading(false);
+        }
+      }
+    };
+
     fechData();
+
+    return () => {
+      isCancelled = true;
+    }
   
   },[count]);
   
